@@ -14,21 +14,18 @@
 
 This README tracks the current v3 pipeline. The runtime skill spec lives in [SKILL.md](SKILL.md), which is the source of truth for the latest command and setup behavior.
 
-Claude Code:
+**Claude Code (recommended — auto-updates via marketplace):**
 ```
 /plugin marketplace add mvanhorn/last30days-skill
 ```
 
-OpenClaw:
+**Codex, Cursor, Copilot, Gemini CLI, or any of 50+ [Agent Skills](https://agentskills.io) hosts:**
 ```
-clawhub install last30days-official
+npx skills add mvanhorn/last30days-skill -g
 ```
+(`-g` installs globally for your user, available across all projects. Drop it to scope per-project.)
 
-Hermes:
-```
-# The skill auto-deploys when you run sync.sh
-# Or manually copy to ~/.hermes/skills/research/last30days/
-```
+More install options (claude.ai web, OpenClaw, manual) in the [Install](#install) section below.
 
 Zero config. Reddit, HN, Polymarket, and GitHub work immediately. Run it once and the setup wizard unlocks X, YouTube, TikTok, and more in 30 seconds.
 
@@ -168,12 +165,61 @@ Say "eli5 on" after any research run. The synthesis rewrites in plain language. 
 
 ## Install
 
-| Surface | Install |
-|---------|---------|
-| **claude.ai** (web) | [Download `last30days.skill`](https://github.com/mvanhorn/last30days-skill/releases/latest/download/last30days.skill) and upload via Settings > Capabilities > Skills > + |
-| **Claude Code** | `/plugin marketplace add mvanhorn/last30days-skill` |
-| **OpenClaw** | `clawhub install last30days-official` |
-| **Gemini CLI** | Clone then `gemini extensions install ./last30days-skill` (see below) |
+| Surface | Install | Updates |
+|---------|---------|---------|
+| **Claude Code** (recommended) | `/plugin marketplace add mvanhorn/last30days-skill` | Auto via marketplace, or `claude plugin update last30days@last30days-skill` |
+| **Codex, Cursor, Copilot, Gemini CLI, GitHub Copilot, or any of 50+ [Agent Skills](https://agentskills.io) hosts** | `npx skills add mvanhorn/last30days-skill -g` | `npx skills update last30days -g` |
+| **claude.ai** (web) | [Download `last30days.skill`](https://github.com/mvanhorn/last30days-skill/releases/latest/download/last30days.skill) and upload via Settings > Capabilities > Skills > + | Re-download and re-upload |
+| **OpenClaw** | `clawhub install last30days-official` | `clawhub update last30days-official` |
+
+### Claude Code (recommended)
+
+```
+/plugin marketplace add mvanhorn/last30days-skill
+```
+
+Recommended because the Claude Code marketplace handles updates for you — the plugin cache is versioned and auto-refreshes when a new release publishes. Run `claude plugin update last30days@last30days-skill` to force a check.
+
+If you'd rather use the agent-skills install path on Claude Code, that's also supported:
+
+```
+npx skills add mvanhorn/last30days-skill -g -a claude-code
+```
+
+The native plugin and the `npx skills` install can coexist; Claude Code dedupes the slash command.
+
+### Codex, Cursor, Copilot, Gemini CLI, and other Agent Skills hosts
+
+Install via the open [Agent Skills](https://agentskills.io) CLI — supports 50+ harnesses including `codex`, `cursor`, `github-copilot`, `gemini-cli`, `claude-code`, `windsurf`, `cline`, `continue`, `roo`, `aider-desk`, `opencode`, `goose`, and more (full list on the [vercel-labs/skills repo](https://github.com/vercel-labs/skills)).
+
+```bash
+npx skills add mvanhorn/last30days-skill -g
+```
+
+The `-g` (global) flag installs to your user directory so the skill is available across all projects. Without `-g`, `npx skills` installs project-locally into `./.skills/` (committed with the repo). For a research-the-world tool, global is what you want.
+
+By default this installs for whichever harness `npx skills` detects. To target a specific one (or multiple):
+
+```bash
+npx skills add mvanhorn/last30days-skill -g -a codex
+npx skills add mvanhorn/last30days-skill -g -a cursor
+npx skills add mvanhorn/last30days-skill -g -a gemini-cli
+npx skills add mvanhorn/last30days-skill -g -a codex -a cursor
+```
+
+Update later with:
+
+```bash
+npx skills update last30days -g
+```
+
+Or update everything you've installed globally via `npx skills`:
+
+```bash
+npx skills update -g
+```
+
+List and remove with `npx skills list -g` and `npx skills remove last30days -g`.
 
 ### claude.ai (web)
 
@@ -181,15 +227,7 @@ Say "eli5 on" after any research run. The synthesis rewrites in plain language. 
 2. Go to [claude.ai Settings > Capabilities > Skills](https://claude.ai/settings/capabilities)
 3. Click the `+` button in the Skills panel and drop the file in
 
-Enable "Code execution and file creation" under Capabilities first - skills won't run without it.
-
-### Claude Code
-
-```
-/plugin marketplace add mvanhorn/last30days-skill
-```
-
-Update later with `claude plugin update last30days@last30days-skill`.
+Enable "Code execution and file creation" under Capabilities first — skills won't run without it.
 
 ### OpenClaw
 
@@ -197,22 +235,14 @@ Update later with `claude plugin update last30days@last30days-skill`.
 clawhub install last30days-official
 ```
 
-### Gemini CLI
-
-Gemini CLI v0.9.0 has an upstream installer bug that can fail with `Configuration file not found at /tmp/gemini-extensionXXXXXX/gemini-extension.json` ([upstream issue](https://github.com/google-gemini/gemini-cli/issues/11452)). Workaround:
-
-```bash
-git clone https://github.com/mvanhorn/last30days-skill
-gemini extensions install ./last30days-skill
-```
-
 ### Manual (developer)
 
 ```bash
-git clone https://github.com/mvanhorn/last30days-skill.git ~/.claude/skills/last30days
+git clone https://github.com/mvanhorn/last30days-skill.git
+ln -s "$(pwd)/last30days-skill/skills/last30days" ~/.claude/skills/last30days
 ```
 
-Or build the claude.ai `.skill` file from source: `bash skills/last30days/scripts/build-skill.sh` produces `dist/last30days.skill`.
+The symlink keeps the install in sync with your working tree as you edit — no re-copy needed. For `claude.ai`, build the `.skill` file from source: `bash skills/last30days/scripts/build-skill.sh` produces `dist/last30days.skill`.
 
 Reddit (with comments), Hacker News, Polymarket, and GitHub work immediately. Zero configuration. Run `/last30days` once and the setup wizard unlocks more sources in 30 seconds.
 
