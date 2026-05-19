@@ -1007,8 +1007,11 @@ def _retrieve_stream(
         result = polymarket.search_polymarket(subquery.search_query, from_date, to_date, depth=depth)
         return polymarket.parse_polymarket_response(result, topic=subquery.search_query), {}
     if source == "github":
-        result = github.search_github(subquery.search_query, from_date, to_date, depth=depth, token=config.get("GITHUB_TOKEN"))
-        return result, {}
+        token = config.get("GITHUB_TOKEN")
+        response = github.search_github(subquery.search_query, from_date, to_date, depth=depth, token=token)
+        items = github.parse_github_response(response)
+        items = github.enrich_with_comments(items, depth=depth, token=token)
+        return items, {}
     if source == "pinterest":
         result = pinterest.search_pinterest(
             subquery.search_query, from_date, to_date,
