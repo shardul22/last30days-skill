@@ -210,6 +210,21 @@ class TestYouTubeFallbackProvider:
         assert "local yt-dlp is not installed" in q["nudge_text"]
         assert "stale yt-dlp" not in q["nudge_text"].lower()
 
+    def test_ytdlp_install_check_runs_once_per_score(self):
+        from lib.quality_nudge import compute_quality_score
+        from lib import youtube_yt
+
+        with patch.object(youtube_yt, "is_ytdlp_installed", return_value=False) as ytdlp_check:
+            compute_quality_score(
+                _base_config(AUTH_TOKEN="tok123"),
+                _base_results(
+                    youtube_videos_count=5,
+                    youtube_transcripts_count=4,
+                ),
+            )
+
+        ytdlp_check.assert_called_once()
+
     def test_no_fallback_data_without_ytdlp_still_missing(self):
         q = _compute(
             config_overrides={"SCRAPECREATORS_API_KEY": "sc_key"},

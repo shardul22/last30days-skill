@@ -56,9 +56,8 @@ def _youtube_returned_data(research_results: dict) -> bool:
     return videos > 0 or transcripts > 0
 
 
-def _is_youtube_active(config: dict, research_results: dict) -> bool:
+def _is_youtube_active(config: dict, research_results: dict, *, has_ytdlp: bool) -> bool:
     """Check if YouTube source is active (yt-dlp installed)."""
-    has_ytdlp = _has_ytdlp()
     if not has_ytdlp:
         return False
     if research_results.get("youtube_error"):
@@ -188,8 +187,8 @@ def compute_quality_score(config: dict, research_results: dict) -> dict:
             core_errored.append("x")
 
     # YouTube
-    yt_active = _is_youtube_active(config, research_results)
     has_ytdlp = _has_ytdlp()
+    yt_active = _is_youtube_active(config, research_results, has_ytdlp=has_ytdlp)
     youtube_returned_data = _youtube_returned_data(research_results)
     if yt_active:
         core_active.append("youtube")
@@ -205,9 +204,10 @@ def compute_quality_score(config: dict, research_results: dict) -> dict:
         # local free yt-dlp lane is unavailable. Count the source as present,
         # but surface it as degraded so users do not see the contradictory
         # "Missing: YouTube" ending after a report with YouTube evidence.
+        # has_ytdlp is provably False here: yt_active is False and youtube_error
+        # is excluded by this guard, leaving unavailable yt-dlp as the cause.
         core_active.append("youtube")
-        if not has_ytdlp:
-            core_degraded.append("youtube")
+        core_degraded.append("youtube")
     else:
         core_missing.append("youtube")
         # Check if configured but errored (yt-dlp installed but failed this run)
@@ -231,6 +231,7 @@ def compute_quality_score(config: dict, research_results: dict) -> dict:
         has_sc=has_sc,
         active_sources=active_sources,
         bonus_errored=bonus_errored,
+        has_ytdlp=has_ytdlp,
     ) if (core_missing or core_degraded or bonus_errored) else None
 
     return {
@@ -252,6 +253,7 @@ def _build_nudge_text(
     has_sc: bool = False,
     active_sources: list = None,
     bonus_errored: List[str] = None,
+    has_ytdlp: bool = False,
 ) -> str:
     """Build human-readable nudge text describing what was missed or degraded.
 
@@ -316,7 +318,7 @@ def _build_nudge_text(
         videos = int(research_results.get("youtube_videos_count") or 0)
         transcripts = int(research_results.get("youtube_transcripts_count") or 0)
         captions_disabled = int(research_results.get("youtube_captions_disabled_count") or 0)
-        if not _has_ytdlp() and _youtube_returned_data(research_results):
+        if not has_ytdlp and _youtube_returned_data(research_results):
             free_suggestions.append(
                 f"YouTube returned {videos} videos and {transcripts} transcripts "
                 "through a fallback/provider path, but local yt-dlp is not "
