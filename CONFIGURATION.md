@@ -145,6 +145,7 @@ python3 skills/last30days/scripts/last30days.py "MCP servers" \
 | Threads | `SCRAPECREATORS_API_KEY` + `INCLUDE_SOURCES` contains `threads` | Threads items | 10K free calls |
 | Pinterest | `SCRAPECREATORS_API_KEY` + `INCLUDE_SOURCES` contains `pinterest` | Pinterest items | 10K free calls |
 | LinkedIn | `SCRAPECREATORS_API_KEY` + `INCLUDE_SOURCES` contains `linkedin` | LinkedIn posts + articles (articles rank as high signal on person topics) | 10K free calls; power-user opt-in, not offered during first-run onboarding |
+| Xiaohongshu (RED) | logged-in x-mcp browser plugin or `xiaohongshu-mcp` service; optional `XIAOHONGSHU_API_BASE` for custom URLs | requested-only via `--search xhs` or `--search xiaohongshu`; auto-probes `http://localhost:18060` then `http://host.docker.internal:18060` | no last30days API key; depends on your local browser-session service |
 | Bluesky | `BSKY_HANDLE` + `BSKY_APP_PASSWORD` | Bluesky items | yes (app password at bsky.app) |
 | TruthSocial | `TRUTHSOCIAL_TOKEN` | TruthSocial items | yes |
 | Web search | one of: `BRAVE_API_KEY`, `EXA_API_KEY`, `SERPER_API_KEY`, `PARALLEL_API_KEY` | `--auto-resolve` and Step 2 supplements | Brave has a free tier; native WebSearch on Claude Code / Codex / Gemini works as a fallback |
@@ -167,6 +168,9 @@ BRAVE_API_KEY=<your-brave-key>
 # Optional sources
 SCRAPECREATORS_API_KEY=<your-scrapecreators-key>
 INCLUDE_SOURCES=tiktok,instagram
+# Xiaohongshu is requested-only: run with --search xhs after starting a local
+# browser-session service. Defaults probe localhost, then host.docker.internal.
+# XIAOHONGSHU_API_BASE=http://localhost:18060
 # Add perplexity to INCLUDE_SOURCES when you want the paid Perplexity source.
 # PERPLEXITY_API_KEY=<your-perplexity-key>
 # INCLUDE_SOURCES=tiktok,instagram,perplexity
@@ -316,7 +320,7 @@ By default the engine decides the source set per query (everything available, mi
 LAST30DAYS_DEFAULT_SEARCH=reddit,x,youtube,hn
 ```
 
-Accepts the same comma-separated names and aliases as `--search` (`web` → grounding, `hn` → hackernews, `bsky` → bluesky). Precedence: an explicit `--search` on the command line always wins; `LAST30DAYS_DEFAULT_SEARCH` applies only when the flag is omitted; when neither is set, per-query behavior is unchanged. `INCLUDE_SOURCES` / `EXCLUDE_SOURCES` keep their existing additive/subtractive roles on whichever set is selected.
+Accepts the same comma-separated names and aliases as `--search` (`web` → grounding, `hn` → hackernews, `bsky` → bluesky, `xhs` → xiaohongshu). Precedence: an explicit `--search` on the command line always wins; `LAST30DAYS_DEFAULT_SEARCH` applies only when the flag is omitted; when neither is set, per-query behavior is unchanged. `INCLUDE_SOURCES` / `EXCLUDE_SOURCES` keep their existing additive/subtractive roles on whichever set is selected.
 
 ### Audience register (`LAST30DAYS_REGISTER`)
 
