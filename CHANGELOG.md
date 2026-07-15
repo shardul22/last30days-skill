@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-07-14
+
 ### Added
 
 - `doctor` is now a four-state audit instead of a flat config prediction: every source is grouped into **WORKING** (verified this run, last run, or keyless-always-on), **TURNED ON - UNVERIFIED** (configured/opted-in but no run evidence), **NOT WORKING** (configured but failing, or the last run errored), or **COULD BE ON** (an available capability not yet configured). Each source renders on its own labeled line, so GitHub (and every other source) is no longer buried in a cluster.
